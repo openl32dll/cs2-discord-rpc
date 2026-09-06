@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+
+# Kişisel Discord Client ID'ni içerir, repoya gitmemeli.
+config.json
