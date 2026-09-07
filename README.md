@@ -138,9 +138,9 @@ powershell -ExecutionPolicy Bypass -File windows_autostart\uninstall_autostart.p
 Discord Rich Presence'ta iki görsel alanı var: **büyük ana görsel** ve
 onun sağ alt köşesinde duran **küçük rozet**. Bu script'te:
 
-- **Büyük görsel** her zaman `assets/maps/cs2_logo.png` — sabit CS2 logosu.
-- **Küçük rozet** o an içinde bulunduğun haritayı gösterir
+- **Büyük görsel** o an içinde bulunduğun haritayı gösterir
   (`assets/maps/<harita_kodu>.png`).
+- **Küçük rozet** her zaman `assets/maps/cs2_logo.png` — sabit CS2 logosu.
 - Ana menüdeyken (henüz bir maçta değilken) sadece büyük CS2 logosu görünür,
   küçük rozet olmaz.
 
@@ -157,7 +157,7 @@ görsellerinle kolayca değiştirebilirsin).
   kullanılmıyor; bu, klasik masaüstü Rich Presence ile en garantili
   çalışan yöntem.
 - Elimizde ikonu olmayan bir harita gelirse (yeni çıkan bir harita ya da
-  community server haritası) küçük rozet de otomatik olarak `cs2_logo`'ya
+  community server haritası) büyük görsel de otomatik olarak `cs2_logo`'ya
   düşer.
 - Yeni bir harita eklemek / ikonları yeniden üretmek istersen:
   `assets/generate_map_icons.py` script'ini (Pillow gerektirir) düzenleyip

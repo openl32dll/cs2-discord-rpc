@@ -254,8 +254,10 @@ def map_image_key(raw_name: Optional[str]) -> str:
 
 # Discord Rich Presence'ta iki görsel alanı var: büyük ana görsel
 # (large_image) ve onun sağ alt köşesinde duran küçük rozet (small_image).
-# Burada büyük görsel her zaman sabit CS2 logosu, küçük rozet ise o an
-# içinde bulunduğun haritayı gösteriyor.
+# Oyun içindeyken büyük görsel o an oynadığın haritayı gösterir (gerçek
+# ekran görüntüsü olduğu için görsel olarak daha etkileyici), küçük rozet
+# ise sabit CS2 logosu olur. Ana menüdeyken (henüz harita yokken) büyük
+# görsel CS2 logosuna düşer.
 CS2_LOGO_IMAGE_KEY = FALLBACK_MAP_IMAGE_KEY
 
 
@@ -384,10 +386,10 @@ def build_presence_fields(payload: dict) -> Optional[dict]:
     return {
         "details": details,
         "state": state_text,
-        "large_image": CS2_LOGO_IMAGE_KEY,
-        "large_text": "Counter-Strike 2",
-        "small_image": map_image_key(map_name_raw),
-        "small_text": map_name,
+        "large_image": map_image_key(map_name_raw),
+        "large_text": map_name,
+        "small_image": CS2_LOGO_IMAGE_KEY,
+        "small_text": "Counter-Strike 2",
     }
 
 
