@@ -1,0 +1,32 @@
+name: Publish to PyPI
+
+# Her GitHub Release yayınlandığında paketi otomatik olarak PyPI'a gönderir.
+# "Trusted Publishing" kullanır: PyPI'da API token saklamaya gerek yoktur,
+# PyPI bu workflow'u (repo + dosya adı eşleşerek) güvenilir bir yayıncı
+# olarak tanır. Kurulum: https://docs.pypi.org/trusted-publishers/
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # PyPI Trusted Publishing (OIDC) için gerekli
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build tool
+        run: pip install build
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
