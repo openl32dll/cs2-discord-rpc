@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/openl32dll/cs2-discord-rpc/actions/workflows/ci.yml/badge.svg)](https://github.com/openl32dll/cs2-discord-rpc/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/openl32dll/cs2-discord-rpc)](https://github.com/openl32dll/cs2-discord-rpc/releases/latest)
 
 Counter-Strike 2 oynarken Discord profilinde sadece "Counter-Strike 2 oynuyor"
 yazısı yerine; **hangi haritada**, **hangi modda** (Rekabetçi/Premier, Yoldaş
