@@ -29,6 +29,11 @@ jobs:
           python -m py_compile assets/generate_map_icons.py
           python -m py_compile assets/import_screenshots.py
 
+      - name: Run unit tests
+        run: |
+          pip install pytest
+          pytest -v
+
       - name: Validate config.example.json
         run: python -c "import json; json.load(open('config.example.json', encoding='utf-8'))"
 
