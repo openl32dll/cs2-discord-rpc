@@ -3,6 +3,7 @@
 [![CI](https://github.com/openl32dll/cs2-discord-rpc/actions/workflows/ci.yml/badge.svg)](https://github.com/openl32dll/cs2-discord-rpc/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Latest release](https://img.shields.io/github/v/release/openl32dll/cs2-discord-rpc)](https://github.com/openl32dll/cs2-discord-rpc/releases/latest)
+[![PyPI](https://img.shields.io/pypi/v/cs2-discord-rpc)](https://pypi.org/project/cs2-discord-rpc/)
 
 Counter-Strike 2 oynarken Discord profilinde sadece "Counter-Strike 2 oynuyor"
 yazısı yerine; **hangi haritada**, **hangi modda** (Rekabetçi/Premier, Yoldaş
@@ -63,7 +64,15 @@ anahtar ismiyle **üzerine yükleyip** script'i yeniden başlatman yeterli.
 
 Dosyayı kopyaladıktan sonra CS2'yi (açıksa) yeniden başlat.
 
-### 3) Bağımlılıkları kur
+### 3) Kur
+
+PyPI üzerinden (önerilen — kurulunca `cs2-discord-rpc` komutu kullanılabilir):
+
+```bash
+pip install cs2-discord-rpc
+```
+
+Ya da bu repoyu klonlayıp bağımlılıkları elle kurmak istersen:
 
 ```bash
 pip install -r requirements.txt
@@ -93,7 +102,14 @@ bu yüzden Windows başlangıcına eklemek için idealdir (bkz. aşağıdaki bö
 
 ### 5) Script'i çalıştır
 
-Discord masaüstü uygulamasının açık olduğundan emin ol, sonra:
+Discord masaüstü uygulamasının açık olduğundan emin ol, sonra PyPI'dan
+kurduysan:
+
+```bash
+cs2-discord-rpc
+```
+
+Repoyu klonlayarak kurduysan:
 
 ```bash
 python cs2_discord_rpc.py
