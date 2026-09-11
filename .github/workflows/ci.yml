@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r assets/requirements.txt
+
+      - name: Compile check (syntax/import errors)
+        run: |
+          python -m py_compile cs2_discord_rpc.py
+          python -m py_compile assets/generate_map_icons.py
+          python -m py_compile assets/import_screenshots.py
+
+      - name: Validate config.example.json
+        run: python -c "import json; json.load(open('config.example.json', encoding='utf-8'))"
