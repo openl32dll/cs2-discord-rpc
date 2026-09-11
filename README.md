@@ -1,5 +1,8 @@
 # CS2 Discord Rich Presence
 
+[![CI](https://github.com/openl32dll/cs2-discord-rpc/actions/workflows/ci.yml/badge.svg)](https://github.com/openl32dll/cs2-discord-rpc/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Counter-Strike 2 oynarken Discord profilinde sadece "Counter-Strike 2 oynuyor"
 yazısı yerine; **hangi haritada**, **hangi modda** (Rekabetçi/Premier, Yoldaş
 (Wingman), Basit (Casual), Deathmatch, Silah Yarışı, Yıkım, Ko-op, Antrenman,
