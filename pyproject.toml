@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cs2-discord-rpc"
+version = "1.0.0"
+description = "Counter-Strike 2 oynarken Discord'da harita, mod ve round bilgisini gösteren Rich Presence aracı"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [{ name = "openl32dll" }]
+keywords = ["discord", "discord-rpc", "discord-rich-presence", "cs2", "counter-strike-2", "gsi", "pypresence"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Games/Entertainment",
+    "Topic :: Communications :: Chat",
+]
+dependencies = [
+    "pypresence>=4.3.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/openl32dll/cs2-discord-rpc"
+Issues = "https://github.com/openl32dll/cs2-discord-rpc/issues"
+Releases = "https://github.com/openl32dll/cs2-discord-rpc/releases"
+
+[project.scripts]
+cs2-discord-rpc = "cs2_discord_rpc:main"
+
+[tool.setuptools]
+py-modules = ["cs2_discord_rpc"]

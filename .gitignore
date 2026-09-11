@@ -3,3 +3,8 @@ __pycache__/
 
 # Kişisel Discord Client ID'ni içerir, repoya gitmemeli.
 config.json
+
+# Paketleme (python -m build) kalıntıları
+dist/
+build/
+*.egg-info/
