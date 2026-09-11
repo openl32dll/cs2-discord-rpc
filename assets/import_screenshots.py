@@ -1,36 +1,35 @@
 """
 import_screenshots.py
 ----------------------
-Kendi aldığın CS2 ekran görüntülerini Discord Rich Presence için uygun
-boyuta getirip `assets/maps/` klasörüne yazar.
+Resizes your own CS2 screenshots to the right dimensions for Discord Rich
+Presence and writes them into `assets/maps/`.
 
-Neden bu script var?
-    Valve'ın telifli oyun içi görsellerini bu repoya hazır olarak
-    koyamıyoruz (hem bu bilgisayarın internete kısıtlı erişimi var hem de
-    başkasının telifli görselini senin adına bir git deposuna kalıcı
-    olarak kopyalamak doğru olmaz). Ama SENİN kendi aldığın ekran
-    görüntülerini kullanman tamamen senin tercihin ve hakkın - bu script
-    de bunu kolaylaştırıyor.
+Why does this script exist?
+    We can't ship Valve's copyrighted in-game images ready-made in this
+    repo (permanently copying someone else's copyrighted image into a git
+    repository under your name wouldn't be right). But using screenshots
+    YOU took yourself is entirely your choice and your right — this
+    script just makes that easier.
 
-Kullanım:
-    1) CS2 içinde bir maça gir, F12 (Steam screenshot) ya da istediğin
-       başka bir yöntemle ekran görüntüsü al.
-    2) Dosyayı şu isimlerden biriyle `assets/screenshots_raw/` klasörüne
-       koy (uzantı .jpg/.jpeg/.png olabilir):
+Usage:
+    1) Join a match in CS2, take a screenshot with F12 (Steam screenshot)
+       or any other method you like.
+    2) Save the file under one of these names into
+       `assets/screenshots_raw/` (extension can be .jpg/.jpeg/.png):
 
            de_dust2, de_mirage, de_inferno, de_nuke, de_overpass,
            de_vertigo, de_ancient, de_anubis, de_train, de_cache,
            cs_office, cs_italy, cs_agency, de_shortdust, de_lake,
            de_stmarc, de_grail, aim_map, cs2_logo
 
-       örnek: assets/screenshots_raw/de_mirage.jpg
+       example: assets/screenshots_raw/de_mirage.jpg
 
     3) pip install -r requirements.txt   (Pillow)
     4) python import_screenshots.py
 
-    Script, her görüntüyü 1024x576 (16:9) boyutuna ortalayarak kırpıp
-    `assets/maps/<harita>.png` olarak kaydeder — cs2_discord_rpc.py bu
-    dosyaları otomatik kullanır, kod tarafında hiçbir değişiklik gerekmez.
+    The script center-crops each image to 1024x576 (16:9) and saves it as
+    `assets/maps/<map>.png` — cs2_discord_rpc.py uses these files
+    automatically, no code changes needed.
 """
 
 from __future__ import annotations
@@ -41,13 +40,13 @@ from PIL import Image, ImageOps
 
 RAW_DIR = os.path.join(os.path.dirname(__file__), "screenshots_raw")
 OUT_DIR = os.path.join(os.path.dirname(__file__), "maps")
-TARGET_SIZE = (1024, 576)  # 16:9 - harita ekran görüntüleri için iyi çalışan oran
+TARGET_SIZE = (1024, 576)  # 16:9 - works well for map screenshots
 VALID_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
 
-# cs2_logo, Discord'da her zaman büyük görsel olarak kullanılıyor ve
-# genelde kare/simetrik bir logo oluyor - onu 16:9'a zorla kırpmak
-# (özellikle kare bir logoyu) kafa/ayak gibi kritik kısımları kesip
-# atabilir. Bu yüzden logo için ayrı, kare bir hedef boyut kullanıyoruz.
+# cs2_logo is always used as the large image on Discord and is usually a
+# square/symmetric logo - forcibly cropping it to 16:9 (especially a
+# square logo) could cut off critical parts. So we use a separate, square
+# target size for the logo.
 SPECIAL_TARGET_SIZES = {
     "cs2_logo": (512, 512),
 }
@@ -55,8 +54,8 @@ SPECIAL_TARGET_SIZES = {
 
 def process_one(src_path: str, out_path: str, target_size: tuple[int, int]) -> None:
     img = Image.open(src_path).convert("RGB")
-    # ImageOps.fit: hedef orana göre ortadan kırpıp yeniden boyutlandırır,
-    # görüntü bozulmaz (stretch yapmaz).
+    # ImageOps.fit: center-crops and resizes to the target aspect ratio
+    # without distorting the image (no stretching).
     fitted = ImageOps.fit(img, target_size, method=Image.LANCZOS)
     fitted.save(out_path, "PNG")
 
@@ -67,9 +66,9 @@ def main() -> None:
     if not os.path.isdir(RAW_DIR):
         os.makedirs(RAW_DIR, exist_ok=True)
         print(
-            f"'{RAW_DIR}' klasörünü oluşturdum.\n"
-            "Ekran görüntülerini bu klasöre (ör. de_mirage.jpg) koyup "
-            "scripti tekrar çalıştır."
+            f"Created the '{RAW_DIR}' folder.\n"
+            "Put your screenshots in this folder (e.g. de_mirage.jpg) and "
+            "run the script again."
         )
         return
 
@@ -82,16 +81,16 @@ def main() -> None:
         out = os.path.join(OUT_DIR, f"{name}.png")
         target_size = SPECIAL_TARGET_SIZES.get(name, TARGET_SIZE)
         process_one(src, out, target_size)
-        print(f"işlendi: {filename} -> {out} ({target_size[0]}x{target_size[1]})")
+        print(f"processed: {filename} -> {out} ({target_size[0]}x{target_size[1]})")
         processed += 1
 
     if processed == 0:
         print(
-            f"'{RAW_DIR}' klasöründe işlenecek görsel bulunamadı "
+            f"No images found to process in '{RAW_DIR}' "
             f"({', '.join(VALID_EXTENSIONS)})."
         )
     else:
-        print(f"\nToplam {processed} görsel güncellendi.")
+        print(f"\nUpdated {processed} image(s) in total.")
 
 
 if __name__ == "__main__":

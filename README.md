@@ -5,41 +5,43 @@
 [![Latest release](https://img.shields.io/github/v/release/openl32dll/cs2-discord-rpc)](https://github.com/openl32dll/cs2-discord-rpc/releases/latest)
 [![PyPI](https://img.shields.io/pypi/v/cs2-discord-rpc)](https://pypi.org/project/cs2-discord-rpc/)
 
-Counter-Strike 2 oynarken Discord profilinde sadece "Counter-Strike 2 oynuyor"
-yazısı yerine; **hangi haritada**, **hangi modda** (Rekabetçi/Premier, Yoldaş
-(Wingman), Basit (Casual), Deathmatch, Silah Yarışı, Yıkım, Ko-op, Antrenman,
-Özel Oyun, vb.) ve **kaçıncı roundda** olduğunu gösteren bir araç.
+🇬🇧 English | [🇹🇷 Türkçe](README.tr.md)
 
-Round kavramı olmayan modlarda (Deathmatch, Silah Yarışı gibi) round yerine
-o anki frag/ölüm sayın gösterilir.
+A tool that shows more than just "Playing Counter-Strike 2" on your Discord
+profile: **which map** you're on, **which game mode** you're playing
+(Competitive/Premier, Wingman, Casual, Deathmatch, Arms Race, Demolition,
+Co-op, Training, Custom Game, etc.) and **which round** you're in.
 
-## Nasıl çalışır?
+In modes without the concept of rounds (Deathmatch, Arms Race, etc.), your
+current kill/death count is shown instead of a round.
 
-CS2, Valve'ın **Game State Integration (GSI)** özelliği sayesinde oyun içi
-durumu (harita, mod, round, skor, bomba durumu...) belirli aralıklarla
-bilgisayarındaki bir HTTP adresine gönderebilir. Bu script:
+## How it works
 
-1. `http://127.0.0.1:3000` adresinde küçük bir yerel sunucu açar.
-2. CS2'den gelen bu veriyi okur.
-3. `pypresence` kütüphanesi ile Discord masaüstü uygulamasına iletir.
+Thanks to Valve's **Game State Integration (GSI)** feature, CS2 can send
+its in-game state (map, mode, round, score, bomb status...) to a local HTTP
+address at regular intervals. This script:
 
-## Kurulum
+1. Opens a small local server at `http://127.0.0.1:3000`.
+2. Reads the incoming data from CS2.
+3. Forwards it to the Discord desktop app via the `pypresence` library.
 
-### 1) Discord Uygulaması oluştur
+## Installation
 
-Discord, üçüncü parti scriptlerin "Rich Presence" gösterebilmesi için bir
-uygulama (Client ID) oluşturmanı ister:
+### 1) Create a Discord Application
 
-1. https://discord.com/developers/applications adresine git.
-2. **New Application** ile yeni bir uygulama oluştur, adını istersen
-   `Counter-Strike 2` koy.
-3. Sol menüden **OAuth2 / General** sayfasında görünen **Application ID**
-   (Client ID) değerini kopyala.
+Discord requires third-party scripts to create an application (Client ID)
+in order to show a "Rich Presence":
 
-**Harita görsellerini de bu adımda yükle.** Aynı sayfada sol menüden
-**Rich Presence → Art Assets** kısmına git ve `assets/maps/`
-klasöründeki her PNG'yi, dosya adıyla **aynı** anahtar (key) ismiyle yükle
-(uzantısız, hepsi küçük harf):
+1. Go to https://discord.com/developers/applications.
+2. Create a new application with **New Application** — name it
+   `Counter-Strike 2` if you like.
+3. Copy the **Application ID** (Client ID) shown on the **OAuth2 / General**
+   page in the left menu.
+
+**Also upload the map images at this step.** On the same page, go to
+**Rich Presence → Art Assets** in the left menu and upload every PNG from
+the `assets/maps/` folder using the **exact same** key name as its
+filename (no extension, all lowercase):
 
 ```
 cs2_logo, de_dust2, de_mirage, de_inferno, de_nuke, de_overpass,
@@ -47,180 +49,202 @@ de_vertigo, de_ancient, de_anubis, de_train, de_cache, cs_office,
 cs_italy, cs_agency, de_shortdust, de_lake, de_stmarc, de_grail, aim_map
 ```
 
-Elinde gerçek ekran görüntüsü olmayan haritalar için (Wingman haritaları,
-Agency, Aim Map gibi) bu adımı atlayabilirsin — script otomatik olarak
-`cs2_logo`'ya düşer. Yeni bir görsel eklediğinde/değiştirdiğinde de aynı
-anahtar ismiyle **üzerine yükleyip** script'i yeniden başlatman yeterli.
+For maps you don't have a real screenshot for (Wingman maps, Agency, Aim
+Map, etc.) you can skip this — the script automatically falls back to
+`cs2_logo`. To add or change an image later, just **re-upload it** under
+the same key name and restart the script.
 
-### 2) GSI config dosyasını CS2'ye tanıt
+### 2) Point CS2 to the GSI config file
 
-`gamestate_integration_discordrpc.cfg` dosyasını CS2'nin şu klasörüne kopyala:
+Copy `gamestate_integration_discordrpc.cfg` into CS2's config folder:
 
 ```
-<Steam kurulum dizini>\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg\
+<Steam install directory>\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg\
 ```
 
-(CS2, CS:GO'nun devamı olduğu için klasör adı hâlâ `csgo`dur.)
+(The folder is still named `csgo` since CS2 is the successor to CS:GO.)
 
-Dosyayı kopyaladıktan sonra CS2'yi (açıksa) yeniden başlat.
+Restart CS2 (if it's running) after copying the file.
 
-### 3) Kur
+### 3) Install
 
-PyPI üzerinden (önerilen — kurulunca `cs2-discord-rpc` komutu kullanılabilir):
+From PyPI (recommended — this makes the `cs2-discord-rpc` command
+available):
 
 ```bash
 pip install cs2-discord-rpc
 ```
 
-Ya da bu repoyu klonlayıp bağımlılıkları elle kurmak istersen:
+Or, if you'd rather clone this repo and install dependencies manually:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4) Client ID'ni kaydet
+### 4) Set your Client ID
 
-İki seçeneğin var:
+You have two options:
 
-**a) Tek seferlik / test için — ortam değişkeni:**
+**a) One-off / for testing — environment variable:**
 ```bash
 # Windows (PowerShell)
-$env:DISCORD_CLIENT_ID="BURAYA_CLIENT_ID"; python cs2_discord_rpc.py
+$env:DISCORD_CLIENT_ID="YOUR_CLIENT_ID"; cs2-discord-rpc
 
 # Linux / macOS
-DISCORD_CLIENT_ID=BURAYA_CLIENT_ID python cs2_discord_rpc.py
+DISCORD_CLIENT_ID=YOUR_CLIENT_ID cs2-discord-rpc
 ```
 
-**b) Kalıcı / otomatik başlatma için — config.json (önerilen):**
+**b) Persistent / for autostart — config.json (recommended):**
 ```bash
 cp config.example.json config.json     # Windows: copy config.example.json config.json
 ```
-`config.json` dosyasını aç, `discord_client_id` alanına Client ID'ni yaz.
-Bu dosya `.gitignore`'da olduğu için repoya gitmez. Script her çalıştığında
-otomatik olarak bu dosyayı okur — ortam değişkeni ayarlamana gerek kalmaz,
-bu yüzden Windows başlangıcına eklemek için idealdir (bkz. aşağıdaki bölüm).
+Open `config.json` and put your Client ID in the `discord_client_id` field.
+This file is in `.gitignore` so it never gets committed. The script reads
+it automatically every time it runs — no need to set an environment
+variable, which makes it ideal for Windows autostart (see below).
 
-### 5) Script'i çalıştır
+### 5) Run it
 
-Discord masaüstü uygulamasının açık olduğundan emin ol, sonra PyPI'dan
-kurduysan:
+Make sure the Discord desktop app is running, then — if you installed via
+PyPI:
 
 ```bash
 cs2-discord-rpc
 ```
 
-Repoyu klonlayarak kurduysan:
+If you installed by cloning the repo:
 
 ```bash
 python cs2_discord_rpc.py
 ```
 
-CS2'ye girip bir maça başladığında Discord profilinde harita, mod ve round
-bilgisi otomatik olarak görünmeye başlar. Ana menüdeyken veya oyundan
-çıktığında durum otomatik olarak güncellenir/temizlenir.
+Once you join a match in CS2, your Discord profile will automatically show
+the map, mode, and round. The status updates/clears automatically when
+you're in the main menu or exit the game.
 
-## Windows'ta otomatik başlatma (PC/oturum açılışında)
+## Display language
 
-Her seferinde elle çalıştırmak istemiyorsan, Windows'ta oturum açtığın
-anda script'i arka planda (konsol penceresi açmadan) otomatik başlatan
-bir Görev Zamanlayıcı (Task Scheduler) görevi kurabilirsin:
+By default, the text shown on Discord (mode names, status text like
+"Warmup" or "Bomb planted") is in **English**. If you'd rather see it in
+**Turkish**, set the `RPC_LANGUAGE` environment variable or the
+`"language"` key in `config.json` to `tr`:
 
-1. Önce yukarıdaki **4b) config.json** adımını tamamla (Client ID kaydedilmeden
-   script çalışmaz).
-2. PowerShell'i (bu repo klasörünün içindeyken) aç. Görev Zamanlayıcı bazı
-   Windows kurulumlarında normal kullanıcıyla yeni görev oluşturmaya izin
-   vermeyebilir — "Erişim engellendi" hatası alırsan PowerShell'i
-   **yönetici olarak** (sağ tık → "Run as Administrator") yeniden aç:
+```bash
+RPC_LANGUAGE=tr cs2-discord-rpc
+```
+
+or in `config.json`:
+```json
+{
+  "discord_client_id": "YOUR_DISCORD_CLIENT_ID_HERE",
+  "language": "tr"
+}
+```
+
+An unrecognized value falls back to English. Only `en` and `tr` are
+supported today; contributions adding more languages are welcome (see
+`STRINGS` in `cs2_discord_rpc.py`).
+
+## Autostart on Windows (at PC/login)
+
+If you don't want to run it by hand every time, you can set up a Task
+Scheduler task that starts the script in the background (no console
+window) as soon as you log in to Windows:
+
+1. First complete **step 4b) config.json** above (the script won't run
+   without a saved Client ID).
+2. Open PowerShell from inside this repo's folder. Task Scheduler may not
+   allow creating a new task as a regular user on some Windows setups — if
+   you get an "Access denied" error, reopen PowerShell **as Administrator**
+   (right-click → "Run as Administrator"):
    ```powershell
    powershell -ExecutionPolicy Bypass -File windows_autostart\install_autostart.ps1
    ```
-3. Bu kadar. Bir sonraki oturum açışında script otomatik başlayacak.
-   Hemen şimdi denemek istersen:
+3. That's it. The script will start automatically on your next login. To
+   try it right away:
    ```powershell
    Start-ScheduledTask -TaskName "CS2DiscordRPC"
    ```
 
-Kaldırmak istersen:
+To remove it:
 ```powershell
 powershell -ExecutionPolicy Bypass -File windows_autostart\uninstall_autostart.ps1
 ```
 
-> **Not:** Görev "oturum açılışında" (`AtLogOn`) tetiklenir, "bilgisayar
-> açılışında" değil — çünkü script'in konuşacağı Discord masaüstü uygulaması
-> da zaten senin oturumun içinde çalışır, sistem açılışında değil. Discord
-> henüz tam açılmamış olsa bile script birkaç saniyede bir otomatik
-> yeniden dener, o yüzden sıralamayla ilgili bir şey yapmana gerek yok.
-> Görev, script çökerse de kendini birkaç kez yeniden başlatacak şekilde
-> ayarlıdır.
+> **Note:** The task triggers "at logon" (`AtLogOn`), not "at system
+> startup" — because the Discord desktop app the script talks to also only
+> runs within your session, not at system boot. The script automatically
+> retries every few seconds even if Discord hasn't fully started yet, so
+> you don't need to worry about ordering. The task is also configured to
+> restart itself a few times if the script crashes.
 
-## Harita görselleri
+## Map images
 
-Discord Rich Presence'ta iki görsel alanı var: **büyük ana görsel** ve
-onun sağ alt köşesinde duran **küçük rozet**. Bu script'te:
+Discord Rich Presence has two image slots: a **large main image** and a
+**small badge** in its bottom-right corner. In this script:
 
-- **Büyük görsel** o an içinde bulunduğun haritayı gösterir
-  (`assets/maps/<harita_kodu>.png`).
-- **Küçük rozet** her zaman `assets/maps/cs2_logo.png` — sabit CS2 logosu.
-- Ana menüdeyken (henüz bir maçta değilken) sadece büyük CS2 logosu görünür,
-  küçük rozet olmaz.
+- The **large image** shows the map you're currently in
+  (`assets/maps/<map_code>.png`).
+- The **small badge** is always `assets/maps/cs2_logo.png` — a fixed CS2
+  logo.
+- In the main menu (not yet in a match), only the large CS2 logo is
+  shown, with no small badge.
 
-`assets/maps/` klasöründe her ana harita için (Dust II, Mirage, Inferno,
-Nuke, Overpass, Vertigo, Ancient, Anubis, Train, Cache, Office, Italy,
-Agency, Wingman haritaları, Aim Map) küçük birer PNG rozet + genel
-`cs2_logo.png` bulunuyor. Şu an bunlar bu repo için üretilmiş basit
-ikonlardır (bkz. aşağıdaki "Gerçek ekran görüntüsü" bölümü — kendi
-görsellerinle kolayca değiştirebilirsin).
+The `assets/maps/` folder contains a small PNG badge for every major map
+(Dust II, Mirage, Inferno, Nuke, Overpass, Vertigo, Ancient, Anubis,
+Train, Cache, Office, Italy, Agency, the Wingman maps, Aim Map) plus a
+generic `cs2_logo.png`. These are currently simple icons generated for
+this repo (see "Using real screenshots" below — you can easily replace
+them with your own).
 
-- Script, GSI'dan gelen harita adını (ör. `de_dust2`) doğrudan Discord
-  Developer Portal'a yüklediğin **Art Asset anahtarı** olarak gönderiyor —
-  bkz. yukarıdaki "1) Discord Uygulaması oluştur" adımı. Dış URL
-  kullanılmıyor; bu, klasik masaüstü Rich Presence ile en garantili
-  çalışan yöntem.
-- Elimizde ikonu olmayan bir harita gelirse (yeni çıkan bir harita ya da
-  community server haritası) büyük görsel de otomatik olarak `cs2_logo`'ya
-  düşer.
-- Yeni bir harita eklemek / ikonları yeniden üretmek istersen:
-  `assets/generate_map_icons.py` script'ini (Pillow gerektirir) düzenleyip
-  tekrar çalıştırabilirsin.
+- The script sends the map name it gets from GSI (e.g. `de_dust2`)
+  directly as the **Art Asset key** you uploaded to the Discord Developer
+  Portal — see "1) Create a Discord Application" above. No external URL is
+  used; this is the most reliable method with classic desktop Rich
+  Presence.
+- If a map comes in that we don't have an icon for (a newly released map
+  or a community server map), the large image also automatically falls
+  back to `cs2_logo`.
+- To add a new map / regenerate the icons: edit and rerun
+  `assets/generate_map_icons.py` (requires Pillow).
 
-### Gerçek ekran görüntüsü kullanmak istersen
+### Using real screenshots
 
-Valve'ın oyun içi ekran görüntülerini bu repoya hazır olarak koymuyoruz
-(telifli içerik). Ama **kendi aldığın** ekran görüntülerini kullanmak
-tamamen senin tercihin ve çok kolay:
+We don't ship Valve's actual in-game screenshots in this repo (copyrighted
+content). But using **your own** screenshots is entirely up to you and
+very easy:
 
-1. CS2'de bir maça gir, `F12` (Steam ekran görüntüsü) ile görüntü al.
-2. Görüntüyü `assets/screenshots_raw/<harita_kodu>.jpg` olarak kaydet
-   (ör. `assets/screenshots_raw/de_mirage.jpg`; geçerli harita kodları
-   yukarıdaki listede).
-3. `python assets/import_screenshots.py` çalıştır.
+1. Join a match in CS2, take a screenshot with `F12` (Steam screenshot).
+2. Save it as `assets/screenshots_raw/<map_code>.jpg` (e.g.
+   `assets/screenshots_raw/de_mirage.jpg`; valid map codes are listed
+   above).
+3. Run `python assets/import_screenshots.py`.
 
-Script, görüntüyü otomatik olarak 1024x576 (16:9) boyutuna ortalayarak
-kırpıp `assets/maps/<harita_kodu>.png` olarak kaydeder; `cs2_discord_rpc.py`
-tarafında hiçbir değişikliğe gerek kalmadan bu yeni görsel kullanılmaya
-başlar.
+The script automatically center-crops the image to 1024x576 (16:9) and
+saves it as `assets/maps/<map_code>.png`; the new image is used
+immediately, with no changes needed in `cs2_discord_rpc.py`.
 
-## Desteklenen modlar
+## Supported modes
 
-| GSI mod anahtarı      | Discord'da görünen ad     | Round gösterimi |
-|------------------------|----------------------------|------------------|
-| `competitive`           | Rekabetçi                  | Round X/24       |
-| `scrimcomp5v5`          | Premier                    | Round X/24       |
-| `scrimcomp2v2`          | Yoldaş (Wingman)            | Round X/16       |
-| `casual`                | Basit                      | Round X          |
-| `deathmatch`            | Deathmatch                 | Frag / ölüm      |
-| `gungameprogressive`    | Silah Yarışı (Arms Race)   | Frag / ölüm      |
-| `gungametrbomb`         | Yıkım (Demolition)         | Round X          |
-| `skirmish`              | Uçan Keşif Nişancısı        | Round X          |
-| `cooperative`           | Ko-op Görev                | Frag / ölüm      |
-| `training`              | Antrenman                  | Frag / ölüm      |
-| `custom`                | Özel Oyun                  | Round X          |
+| GSI mode key            | Displayed name (English) | Round display    |
+|--------------------------|---------------------------|-------------------|
+| `competitive`            | Competitive                | Round X/24        |
+| `scrimcomp5v5`           | Premier                    | Round X/24        |
+| `scrimcomp2v2`           | Wingman                    | Round X/16        |
+| `casual`                 | Casual                      | Round X           |
+| `deathmatch`             | Deathmatch                  | Kills / deaths    |
+| `gungameprogressive`     | Arms Race                   | Kills / deaths    |
+| `gungametrbomb`          | Demolition                  | Round X           |
+| `skirmish`               | Skirmish                    | Round X           |
+| `cooperative`            | Co-op Strike                | Kills / deaths    |
+| `training`               | Training                    | Kills / deaths    |
+| `custom`                 | Custom Game                 | Round X           |
 
-Listede olmayan yeni bir mod eklenirse script "Bilinmeyen Mod" olarak
-gösterir; `cs2_discord_rpc.py` içindeki `MODE_INFO` sözlüğüne yeni satır
-ekleyerek kolayca genişletilebilir.
+If a new, unlisted mode is added, the script displays "Unknown Mode"; it's
+easy to extend by adding a new entry to the `MODE_INFO` dictionary (and a
+label in `STRINGS`) in `cs2_discord_rpc.py`.
 
-> **Not:** `competitive`/`scrimcomp5v5` için 24, `scrimcomp2v2` için 16
-> round varsayılan matchmaking ayarlarına (MR12 / MR8) göre verilmiştir.
-> Özel sunucularda (community server) bu limit farklıysa sadece geçerli
-> round numarası gösterilir.
+> **Note:** The 24 rounds for `competitive`/`scrimcomp5v5` and 16 rounds
+> for `scrimcomp2v2` are based on the default matchmaking settings (MR12 /
+> MR8). If this limit differs on a community server, only the current
+> round number is shown.
