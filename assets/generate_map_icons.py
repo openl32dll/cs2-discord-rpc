@@ -1,17 +1,16 @@
 """
 generate_map_icons.py
 ----------------------
-`cs2-discord-rpc/assets/maps/` klasöründeki küçük harita ikonlarını üretir.
+Generates the small map icons in `cs2-discord-rpc/assets/maps/`.
 
-Bu görseller Valve'ın telifli oyun içi ekran görüntüleri DEĞİLDİR; bu repo
-için sıfırdan çizilmiş basit, tek renkli "rozet" tarzı ikonlardır (harita
-adı + küçük bir nişangah simgesi). Amaç, Discord Rich Presence'ta her
-haritayı görsel olarak ayırt edilebilir kılmak; Discord Developer Portal'a
-manuel görsel yüklemeye gerek kalmadan `cs2_discord_rpc.py`, bu PNG'lerin
-GitHub üzerindeki ham (raw) URL'sini doğrudan Discord'a "external image
-URL" olarak veriyor.
+These images are NOT Valve's copyrighted in-game screenshots; they are
+simple, flat-color "badge"-style icons drawn from scratch for this repo
+(map name + a small crosshair icon). The goal is to make each map visually
+distinguishable in Discord Rich Presence: `cs2_discord_rpc.py` sends these
+PNGs' file names as the Art Asset key you upload to the Discord Developer
+Portal (see README.md) — no external image hosting is involved.
 
-Yeniden üretmek / yeni harita eklemek istersen:
+To regenerate / add a new map:
     pip install Pillow
     python generate_map_icons.py
 """
@@ -29,7 +28,7 @@ FONT_PATH_CANDIDATES = [
     "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
 ]
 
-# harita_kodu -> (Görünen kısa etiket, arkaplan rengi (RGB), yazı rengi)
+# map_code -> (short display label, background color (RGB))
 MAPS = {
     "de_dust2":     ("DUST II", (196, 154, 91)),
     "de_mirage":    ("MIRAGE", (214, 168, 92)),
@@ -51,7 +50,7 @@ MAPS = {
     "aim_map":      ("AIM MAP", (120, 120, 120)),
 }
 
-# Genel / bilinmeyen harita ve ana menü için varsayılan logo.
+# Default logo for the generic/unknown map and the main menu.
 FALLBACK = ("cs2_logo", "CS2", (60, 60, 66))
 
 
@@ -75,7 +74,7 @@ def _make_icon(label: str, bg_color) -> Image.Image:
     img = Image.new("RGB", (SIZE, SIZE), bg_color)
     draw = ImageDraw.Draw(img)
 
-    # Hafif koyu kenarlık.
+    # Subtle dark border.
     border = 10
     draw.rectangle(
         (border // 2, border // 2, SIZE - border // 2, SIZE - border // 2),
@@ -86,7 +85,7 @@ def _make_icon(label: str, bg_color) -> Image.Image:
     text_color = (255, 255, 255)
     _draw_crosshair(draw, SIZE // 2, 175, text_color)
 
-    # Harita adını sığdırana kadar font boyutunu küçült.
+    # Shrink the font size until the map name fits.
     font_size = 68
     font = _load_font(font_size)
     max_width = SIZE - 80
@@ -118,13 +117,13 @@ def main() -> None:
         icon = _make_icon(label, color)
         out_path = os.path.join(OUT_DIR, f"{map_key}.png")
         icon.save(out_path)
-        print(f"yazıldı: {out_path}")
+        print(f"written: {out_path}")
 
     fallback_key, fallback_label, fallback_color = FALLBACK
     icon = _make_icon(fallback_label, fallback_color)
     out_path = os.path.join(OUT_DIR, f"{fallback_key}.png")
     icon.save(out_path)
-    print(f"yazıldı: {out_path}")
+    print(f"written: {out_path}")
 
 
 if __name__ == "__main__":
