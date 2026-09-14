@@ -15,6 +15,12 @@ yazısı yerine; **hangi haritada**, **hangi modda** (Rekabetçi/Premier, Yolda�
 Round kavramı olmayan modlarda (Deathmatch, Silah Yarışı gibi) round yerine
 o anki frag/ölüm sayın gösterilir.
 
+## Ekran görüntüleri
+
+| Maç içinde | Ana menü |
+|---|---|
+| ![Oyun içi durum: Dust II, Rekabetçi, Isınma turu](docs/screenshot-ingame.png) | ![Ana menü durumu](docs/screenshot-menu.png) |
+
 ## Nasıl çalışır?
 
 CS2, Valve'ın **Game State Integration (GSI)** özelliği sayesinde oyun içi

@@ -15,6 +15,12 @@ Co-op, Training, Custom Game, etc.) and **which round** you're in.
 In modes without the concept of rounds (Deathmatch, Arms Race, etc.), your
 current kill/death count is shown instead of a round.
 
+## Demo
+
+| In a match | Main menu |
+|---|---|
+| ![In-game status: Dust II, Competitive, Warmup](docs/screenshot-ingame.png) | ![Main menu status](docs/screenshot-menu.png) |
+
 ## How it works
 
 Thanks to Valve's **Game State Integration (GSI)** feature, CS2 can send
