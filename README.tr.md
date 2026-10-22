@@ -255,3 +255,18 @@ ekleyerek kolayca genişletilebilir.
 > round varsayılan matchmaking ayarlarına (MR12 / MR8) göre verilmiştir.
 > Özel sunucularda (community server) bu limit farklıysa sadece geçerli
 > round numarası gösterilir.
+
+## Bomba geri sayımı
+
+Bomba döşenince Discord'da durum metninin yanında **canlı, saniye saniye
+azalan bir geri sayım saati** gösterilir (ör. "-0:23") — bu, Discord'un
+kendi yerleşik geri sayım özelliğini kullanıyor, yani script'in her saniye
+bir şey göndermesine gerek kalmadan kendiliğinden ilerliyor.
+
+Geri sayım, standart 40 saniyelik C4 fitil süresini (`mp_c4timer`
+varsayılanı) esas alıyor. GSI gerçek kalan süreyi vermediği için, farklı
+bir `mp_c4timer` değeri olan özel bir sunucuda geri sayım oyun içindekiyle
+tam eşleşmeyebilir; çoğunlukla varsayılandan farklı bir sunucuda
+oynuyorsan `cs2_discord_rpc.py` içindeki `C4_FUSE_TIME_SECONDS` değerini
+değiştirebilirsin.
+

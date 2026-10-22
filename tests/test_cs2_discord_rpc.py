@@ -154,6 +154,42 @@ class TestBuildPresenceFields:
         }
         fields = rpc.build_presence_fields(payload)
         assert "Bomb planted" in fields["state"]
+        # No bomb_planted_at supplied -> no countdown timer, main-loop
+        # bookkeeping is the caller's responsibility.
+        assert "timer_end" not in fields
+
+    def test_bomb_planted_with_timer_shows_countdown_end(self):
+        payload = {
+            "player": {"activity": "playing"},
+            "map": {
+                "name": "de_overpass",
+                "mode": "competitive",
+                "phase": "live",
+                "round": 0,
+                "team_ct": {"score": 0},
+                "team_t": {"score": 0},
+            },
+            "round": {"bomb": "planted"},
+        }
+        planted_at = 1_000_000.0
+        fields = rpc.build_presence_fields(payload, bomb_planted_at=planted_at)
+        assert fields["timer_end"] == planted_at + rpc.C4_FUSE_TIME_SECONDS
+
+    def test_bomb_not_planted_has_no_timer_even_if_tracked(self):
+        payload = {
+            "player": {"activity": "playing"},
+            "map": {
+                "name": "de_overpass",
+                "mode": "competitive",
+                "phase": "live",
+                "round": 0,
+                "team_ct": {"score": 0},
+                "team_t": {"score": 0},
+            },
+            "round": {"bomb": "defused"},
+        }
+        fields = rpc.build_presence_fields(payload, bomb_planted_at=1_000_000.0)
+        assert "timer_end" not in fields
 
     def test_unlisted_map_falls_back_to_logo_image(self):
         payload = {

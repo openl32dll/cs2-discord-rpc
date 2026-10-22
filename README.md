@@ -254,3 +254,18 @@ label in `STRINGS`) in `cs2_discord_rpc.py`.
 > for `scrimcomp2v2` are based on the default matchmaking settings (MR12 /
 > MR8). If this limit differs on a community server, only the current
 > round number is shown.
+
+## Bomb countdown
+
+When the bomb is planted, Discord shows a live, ticking countdown clock
+(e.g. "-0:23") right next to the status text — this uses Discord's own
+native countdown timer feature, so it updates in real time without the
+script needing to send anything every second.
+
+The countdown assumes the standard 40-second C4 fuse time (`mp_c4timer`'s
+default). GSI doesn't expose the actual remaining time, so on a custom
+server with a different `mp_c4timer` value the countdown may not exactly
+match what you see in-game; you can change `C4_FUSE_TIME_SECONDS` in
+`cs2_discord_rpc.py` if you mostly play on a server with a non-default
+value.
+
