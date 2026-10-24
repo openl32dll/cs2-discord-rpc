@@ -463,6 +463,10 @@ def build_presence_fields(payload: dict) -> Optional[dict]:
             "state": "Counter-Strike 2",
             "large_image": CS2_LOGO_IMAGE_KEY,
             "large_text": "Counter-Strike 2",
+            # Not sent to Discord, only used for the diagnostic log line
+            # in main() -> helps figure out what GSI is actually
+            # reporting when this branch triggers unexpectedly.
+            "debug_activity": activity,
         }
 
     map_name_raw = map_info.get("name")
@@ -589,6 +593,12 @@ def main() -> None:
                     start=int(start_time),
                 )
                 log.info("Status updated: %s | %s", fields["details"], fields["state"])
+                if "debug_activity" in fields:
+                    log.info(
+                        "(diagnostic: GSI's player.activity = %r, not 'playing' "
+                        "-> showing main menu status)",
+                        fields["debug_activity"],
+                    )
                 last_sent_key = key
                 last_sent_time = time.time()
 
