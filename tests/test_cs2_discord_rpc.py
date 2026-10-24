@@ -202,6 +202,58 @@ class TestBuildPresenceFields:
         fields = rpc.build_presence_fields(payload)
         assert "Match Point" not in fields["state"]
 
+    def test_round_kills_shown_with_headshot_count(self):
+        payload = {
+            "player": {
+                "activity": "playing",
+                "state": {"round_kills": 2, "round_killhs": 1},
+            },
+            "map": {
+                "name": "de_dust2",
+                "mode": "competitive",
+                "phase": "live",
+                "round": 3,
+                "team_ct": {"score": 2},
+                "team_t": {"score": 1},
+            },
+        }
+        fields = rpc.build_presence_fields(payload)
+        assert "🔫 2 (1 HS)" in fields["state"]
+
+    def test_round_kills_shown_without_headshots(self):
+        payload = {
+            "player": {
+                "activity": "playing",
+                "state": {"round_kills": 1, "round_killhs": 0},
+            },
+            "map": {
+                "name": "de_dust2",
+                "mode": "competitive",
+                "phase": "live",
+                "round": 3,
+                "team_ct": {"score": 2},
+                "team_t": {"score": 1},
+            },
+        }
+        fields = rpc.build_presence_fields(payload)
+        assert "🔫 1" in fields["state"]
+        assert "HS" not in fields["state"]
+
+    def test_no_round_kills_suffix_when_no_kills_yet(self):
+        payload = {
+            "player": {"activity": "playing", "state": {"round_kills": 0}},
+            "map": {
+                "name": "de_dust2",
+                "mode": "competitive",
+                "phase": "live",
+                "round": 3,
+                "team_ct": {"score": 2},
+                "team_t": {"score": 1},
+            },
+        }
+        fields = rpc.build_presence_fields(payload)
+        assert "🔫" not in fields["state"]
+
     def test_unlisted_map_falls_back_to_logo_image(self):
         payload = {
             "player": {"activity": "playing"},

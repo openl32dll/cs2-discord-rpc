@@ -266,3 +266,10 @@ counter itself), not any less-documented GSI field.
 > modes that support OT the indicator may not be accurate once a match
 > reaches a 12-12 (or equivalent) tie.
 
+## Round performance
+
+In round-based modes, if you've gotten a kill in the current round, "🔫
+{kills} ({headshots} HS)" is appended to the status text (the headshot
+count is omitted if it's zero). This resets automatically every round
+since it comes straight from GSI's own per-round kill counters.
+

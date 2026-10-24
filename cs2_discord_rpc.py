@@ -366,6 +366,24 @@ def match_point_suffix(ct_score: int, t_score: int, max_rounds: Optional[int]) -
 
 
 # --------------------------------------------------------------------------
+# Round performance (kills this round)
+#
+# GSI's player.state.round_kills / round_killhs reset automatically at
+# the start of every round (unlike the bomb field, these are reliably
+# well-documented and don't carry stale state across rounds), so this is
+# safe to show live: how many kills (and headshots) you have so far in
+# the current round.
+# --------------------------------------------------------------------------
+
+def round_kill_suffix(round_kills: int, round_killhs: int) -> str:
+    if not round_kills:
+        return ""
+    if round_killhs:
+        return f" · 🔫 {round_kills} ({round_killhs} HS)"
+    return f" · 🔫 {round_kills}"
+
+
+# --------------------------------------------------------------------------
 # Shared state: the GSI server updates this object, and the presence loop
 # reads from it to send updates to Discord.
 # --------------------------------------------------------------------------
@@ -477,6 +495,10 @@ def build_presence_fields(payload: dict) -> Optional[dict]:
                 round_text += f"/{mode.max_rounds}"
             state_text = f"{round_text} · CT {ct_score} - {t_score} T"
             state_text += match_point_suffix(ct_score, t_score, mode.max_rounds)
+            player_state = player.get("state") or {}
+            state_text += round_kill_suffix(
+                player_state.get("round_kills", 0), player_state.get("round_killhs", 0)
+            )
         else:
             # Modes without rounds (Deathmatch, Arms Race, etc.): show
             # personal kill/death stats instead of a round number.

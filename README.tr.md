@@ -267,3 +267,11 @@ belgelenmiş bir GSI alanına değil.
 > yüzden uzatmayı destekleyen modlarda 12-12 (ya da eşdeğeri) bir
 > beraberlikten sonra gösterge doğru olmayabilir.
 
+## Round performansı
+
+Round tabanlı modlarda, o an bulunduğun round'da bir kill aldıysan durum
+metnine "🔫 {kill sayısı} ({headshot sayısı} HS)" ekleniyor (headshot
+sayısı sıfırsa gösterilmiyor). Bu, doğrudan GSI'nin kendi round bazlı
+sayaçlarından geldiği için her round otomatik olarak sıfırlanıyor.
+
+
