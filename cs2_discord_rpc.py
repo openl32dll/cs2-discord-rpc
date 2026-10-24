@@ -126,7 +126,14 @@ MIN_UPDATE_INTERVAL_SECONDS = 4.0
 
 # If no data arrives from the player for this long, the status is cleared
 # (interpreted as the game having been closed / CS2 exited).
-STALE_TIMEOUT_SECONDS = 20.0
+#
+# Must stay comfortably above the GSI config's "heartbeat" value (30s in
+# gamestate_integration_discordrpc.cfg). In round-based modes CS2 posts
+# updates on round/kill/bomb events too, so this rarely mattered, but
+# Deathmatch has no rounds -> CS2 may rely on the heartbeat alone, and a
+# timeout shorter than (or too close to) it caused the status to flicker
+# cleared between heartbeats, reported stuck/missing while playing DM.
+STALE_TIMEOUT_SECONDS = 45.0
 
 
 # --------------------------------------------------------------------------
