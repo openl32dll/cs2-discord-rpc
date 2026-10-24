@@ -128,12 +128,6 @@ MIN_UPDATE_INTERVAL_SECONDS = 4.0
 # (interpreted as the game having been closed / CS2 exited).
 STALE_TIMEOUT_SECONDS = 20.0
 
-# Standard C4 fuse time ("mp_c4timer" default). Community/custom servers
-# may configure this differently; GSI doesn't expose the actual remaining
-# time, so this is our best assumption for the live countdown shown on
-# Discord while the bomb is planted.
-C4_FUSE_TIME_SECONDS = 40
-
 
 # --------------------------------------------------------------------------
 # Display language
@@ -167,7 +161,7 @@ STRINGS: dict[str, dict] = {
         "warmup": "Warmup",
         "gameover": "Match over",
         "frags_deaths": "{kills} kills / {deaths} deaths",
-        "bomb_planted": "Bomb planted",
+        "match_point": "Match Point!",
     },
     "tr": {
         "mode_labels": {
@@ -190,7 +184,7 @@ STRINGS: dict[str, dict] = {
         "warmup": "Isınma turu",
         "gameover": "Maç bitti",
         "frags_deaths": "{kills} frag / {deaths} ölüm",
-        "bomb_planted": "Bomba döşendi",
+        "match_point": "Maç Sayısı!",
     },
 }
 
@@ -351,6 +345,27 @@ CS2_LOGO_IMAGE_KEY = FALLBACK_MAP_IMAGE_KEY
 
 
 # --------------------------------------------------------------------------
+# "Match Point" indicator
+#
+# Flags when either team is one round away from winning the match, using
+# only data we already trust (team scores + the mode's known round limit)
+# rather than reaching for less-documented GSI fields.
+#
+# Known limitation: this doesn't model CS2's overtime rules (how scores
+# are reported once a match goes to OT), so the indicator may be
+# inaccurate past a 12-12 (or equivalent) tie in modes that support OT.
+# --------------------------------------------------------------------------
+
+def match_point_suffix(ct_score: int, t_score: int, max_rounds: Optional[int]) -> str:
+    if not max_rounds:
+        return ""
+    rounds_to_win = max_rounds // 2 + 1
+    if ct_score == rounds_to_win - 1 or t_score == rounds_to_win - 1:
+        return f" · 🏆 {STR['match_point']}"
+    return ""
+
+
+# --------------------------------------------------------------------------
 # Shared state: the GSI server updates this object, and the presence loop
 # reads from it to send updates to Discord.
 # --------------------------------------------------------------------------
@@ -412,20 +427,14 @@ def run_gsi_server() -> ThreadingHTTPServer:
 # GSI data.
 # --------------------------------------------------------------------------
 
-def build_presence_fields(payload: dict, bomb_planted_at: Optional[float] = None) -> Optional[dict]:
+def build_presence_fields(payload: dict) -> Optional[dict]:
     """Builds the Discord Rich Presence fields from a GSI payload.
 
     Returns None if the player is in the main menu or data is missing (in
     which case the presence is cleared).
-
-    `bomb_planted_at` (a time.time() timestamp) is supplied by the caller
-    when it has been tracking how long ago the bomb was planted in the
-    current round; this function stays a pure/deterministic function
-    (easy to unit test) and leaves that bookkeeping to the main loop.
     """
     player = payload.get("player") or {}
     map_info = payload.get("map") or {}
-    round_info = payload.get("round") or {}
 
     activity = player.get("activity")
     if activity is not None and activity != "playing":
@@ -467,6 +476,7 @@ def build_presence_fields(payload: dict, bomb_planted_at: Optional[float] = None
             if mode.max_rounds:
                 round_text += f"/{mode.max_rounds}"
             state_text = f"{round_text} · CT {ct_score} - {t_score} T"
+            state_text += match_point_suffix(ct_score, t_score, mode.max_rounds)
         else:
             # Modes without rounds (Deathmatch, Arms Race, etc.): show
             # personal kill/death stats instead of a round number.
@@ -475,10 +485,7 @@ def build_presence_fields(payload: dict, bomb_planted_at: Optional[float] = None
             deaths = match_stats.get("deaths", 0)
             state_text = STR["frags_deaths"].format(kills=kills, deaths=deaths)
 
-        if round_info.get("bomb") == "planted":
-            state_text += f" · 💣 {STR['bomb_planted']}"
-
-    fields = {
+    return {
         "details": details,
         "state": state_text,
         "large_image": map_image_key(map_name_raw),
@@ -486,14 +493,6 @@ def build_presence_fields(payload: dict, bomb_planted_at: Optional[float] = None
         "small_image": CS2_LOGO_IMAGE_KEY,
         "small_text": "Counter-Strike 2",
     }
-
-    if round_info.get("bomb") == "planted" and bomb_planted_at is not None:
-        # Discord renders this as its own live-ticking countdown clock
-        # (e.g. "-0:23") next to the state text, no need to resend every
-        # second for it to visually count down.
-        fields["timer_end"] = bomb_planted_at + C4_FUSE_TIME_SECONDS
-
-    return fields
 
 
 def state_key(fields: Optional[dict]) -> tuple:
@@ -534,10 +533,6 @@ def main() -> None:
     cleared_for_stale = True
     start_time = time.time()
 
-    # Bomb-plant tracking for the live countdown (see build_presence_fields).
-    bomb_planted_at: Optional[float] = None
-    last_round_seen: Optional[int] = None
-
     while True:
         try:
             if rpc is None:
@@ -557,32 +552,11 @@ def main() -> None:
                 continue
 
             cleared_for_stale = False
-
-            # Track when the bomb was planted (reset on round change or
-            # once it's no longer planted) so we can show a live countdown.
-            map_info = payload.get("map") or {}
-            round_info = payload.get("round") or {}
-            current_round = map_info.get("round")
-            if current_round != last_round_seen:
-                last_round_seen = current_round
-                bomb_planted_at = None
-            if round_info.get("bomb") == "planted":
-                if bomb_planted_at is None:
-                    bomb_planted_at = time.time()
-            else:
-                bomb_planted_at = None
-
-            fields = build_presence_fields(payload, bomb_planted_at=bomb_planted_at)
+            fields = build_presence_fields(payload)
             key = state_key(fields)
 
             enough_time_passed = (time.time() - last_sent_time) >= MIN_UPDATE_INTERVAL_SECONDS
             if fields and key != last_sent_key and enough_time_passed:
-                timer_kwargs: dict = {}
-                if fields.get("timer_end"):
-                    timer_kwargs["end"] = int(fields["timer_end"])
-                else:
-                    timer_kwargs["start"] = int(start_time)
-
                 rpc.update(
                     details=fields["details"],
                     state=fields["state"],
@@ -590,7 +564,7 @@ def main() -> None:
                     large_text=fields.get("large_text") or "Counter-Strike 2",
                     small_image=fields.get("small_image"),
                     small_text=fields.get("small_text"),
-                    **timer_kwargs,
+                    start=int(start_time),
                 )
                 log.info("Status updated: %s | %s", fields["details"], fields["state"])
                 last_sent_key = key

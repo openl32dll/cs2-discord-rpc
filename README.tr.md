@@ -129,7 +129,7 @@ bilgisi otomatik olarak görünmeye başlar. Ana menüdeyken veya oyundan
 
 ## Görünüm dili
 
-Discord'da görünen metin (mod adları, "Isınma turu" / "Bomba döşendi" gibi
+Discord'da görünen metin (mod adları, "Isınma turu" / "Maç Sayısı!" gibi
 durum yazıları) **varsayılan olarak İngilizce**'dir. Türkçe görmek
 istersen `RPC_LANGUAGE` ortam değişkenini ya da `config.json` içindeki
 `"language"` alanını `tr` yap:
@@ -256,17 +256,14 @@ ekleyerek kolayca genişletilebilir.
 > Özel sunucularda (community server) bu limit farklıysa sadece geçerli
 > round numarası gösterilir.
 
-## Bomba geri sayımı
+## Maç Sayısı (Match Point)
 
-Bomba döşenince Discord'da durum metninin yanında **canlı, saniye saniye
-azalan bir geri sayım saati** gösterilir (ör. "-0:23") — bu, Discord'un
-kendi yerleşik geri sayım özelliğini kullanıyor, yani script'in her saniye
-bir şey göndermesine gerek kalmadan kendiliğinden ilerliyor.
+Takımlardan biri maçı kazanmaya bir round kalınca durum metnine "🏆 Maç
+Sayısı!" ekleniyor. Bu, zaten round sayacı için kullandığımız güvenilir
+veriye (takım skorları + modun bilinen round limiti) dayanıyor, daha az
+belgelenmiş bir GSI alanına değil.
 
-Geri sayım, standart 40 saniyelik C4 fitil süresini (`mp_c4timer`
-varsayılanı) esas alıyor. GSI gerçek kalan süreyi vermediği için, farklı
-bir `mp_c4timer` değeri olan özel bir sunucuda geri sayım oyun içindekiyle
-tam eşleşmeyebilir; çoğunlukla varsayılandan farklı bir sunucuda
-oynuyorsan `cs2_discord_rpc.py` içindeki `C4_FUSE_TIME_SECONDS` değerini
-değiştirebilirsin.
+> **Not:** Şu an CS2'nin uzatma (overtime) kurallarını modellemiyor, bu
+> yüzden uzatmayı destekleyen modlarda 12-12 (ya da eşdeğeri) bir
+> beraberlikten sonra gösterge doğru olmayabilir.
 

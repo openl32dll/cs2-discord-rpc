@@ -139,57 +139,68 @@ class TestBuildPresenceFields:
         fields = rpc.build_presence_fields(payload)
         assert fields["state"] == "10 kills / 4 deaths"
 
-    def test_bomb_planted_is_appended_to_state(self):
+    def test_match_point_shown_when_ct_one_round_from_winning(self):
         payload = {
             "player": {"activity": "playing"},
             "map": {
                 "name": "de_overpass",
                 "mode": "competitive",
                 "phase": "live",
-                "round": 0,
-                "team_ct": {"score": 0},
-                "team_t": {"score": 0},
+                "round": 17,
+                "team_ct": {"score": 12},
+                "team_t": {"score": 5},
             },
-            "round": {"bomb": "planted"},
         }
         fields = rpc.build_presence_fields(payload)
-        assert "Bomb planted" in fields["state"]
-        # No bomb_planted_at supplied -> no countdown timer, main-loop
-        # bookkeeping is the caller's responsibility.
-        assert "timer_end" not in fields
+        assert "Match Point" in fields["state"]
 
-    def test_bomb_planted_with_timer_shows_countdown_end(self):
+    def test_match_point_shown_when_t_one_round_from_winning(self):
+        payload = {
+            "player": {"activity": "playing"},
+            "map": {
+                "name": "de_shortdust",
+                "mode": "scrimcomp2v2",  # Wingman, MR8 -> win at 9
+                "phase": "live",
+                "round": 13,
+                "team_ct": {"score": 3},
+                "team_t": {"score": 8},
+            },
+        }
+        fields = rpc.build_presence_fields(payload)
+        assert "Match Point" in fields["state"]
+
+    def test_no_match_point_mid_match(self):
         payload = {
             "player": {"activity": "playing"},
             "map": {
                 "name": "de_overpass",
                 "mode": "competitive",
                 "phase": "live",
-                "round": 0,
-                "team_ct": {"score": 0},
-                "team_t": {"score": 0},
+                "round": 8,
+                "team_ct": {"score": 5},
+                "team_t": {"score": 3},
             },
-            "round": {"bomb": "planted"},
         }
-        planted_at = 1_000_000.0
-        fields = rpc.build_presence_fields(payload, bomb_planted_at=planted_at)
-        assert fields["timer_end"] == planted_at + rpc.C4_FUSE_TIME_SECONDS
+        fields = rpc.build_presence_fields(payload)
+        assert "Match Point" not in fields["state"]
 
-    def test_bomb_not_planted_has_no_timer_even_if_tracked(self):
+    def test_no_match_point_when_max_rounds_unknown(self):
+        # Casual has no fixed round cap in MODE_INFO, so we can't tell
+        # when a team is one round from winning -> no indicator, even at
+        # a score that would be "match point" in competitive.
         payload = {
             "player": {"activity": "playing"},
             "map": {
-                "name": "de_overpass",
-                "mode": "competitive",
+                "name": "de_dust2",
+                "mode": "casual",
                 "phase": "live",
-                "round": 0,
-                "team_ct": {"score": 0},
+                "round": 11,
+                "team_ct": {"score": 12},
                 "team_t": {"score": 0},
             },
-            "round": {"bomb": "defused"},
         }
-        fields = rpc.build_presence_fields(payload, bomb_planted_at=1_000_000.0)
-        assert "timer_end" not in fields
+        fields = rpc.build_presence_fields(payload)
+        assert "Match Point" not in fields["state"]
 
     def test_unlisted_map_falls_back_to_logo_image(self):
         payload = {

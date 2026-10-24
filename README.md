@@ -131,7 +131,7 @@ you're in the main menu or exit the game.
 ## Display language
 
 By default, the text shown on Discord (mode names, status text like
-"Warmup" or "Bomb planted") is in **English**. If you'd rather see it in
+"Warmup" or "Match Point!") is in **English**. If you'd rather see it in
 **Turkish**, set the `RPC_LANGUAGE` environment variable or the
 `"language"` key in `config.json` to `tr`:
 
@@ -255,17 +255,14 @@ label in `STRINGS`) in `cs2_discord_rpc.py`.
 > MR8). If this limit differs on a community server, only the current
 > round number is shown.
 
-## Bomb countdown
+## Match Point
 
-When the bomb is planted, Discord shows a live, ticking countdown clock
-(e.g. "-0:23") right next to the status text — this uses Discord's own
-native countdown timer feature, so it updates in real time without the
-script needing to send anything every second.
+When either team is one round away from winning the match, "🏆 Match
+Point!" is appended to the status text. This only uses the team scores
+and the mode's known round limit (data we already trust for the round
+counter itself), not any less-documented GSI field.
 
-The countdown assumes the standard 40-second C4 fuse time (`mp_c4timer`'s
-default). GSI doesn't expose the actual remaining time, so on a custom
-server with a different `mp_c4timer` value the countdown may not exactly
-match what you see in-game; you can change `C4_FUSE_TIME_SECONDS` in
-`cs2_discord_rpc.py` if you mostly play on a server with a non-default
-value.
+> **Note:** This doesn't currently model CS2's overtime rules, so in
+> modes that support OT the indicator may not be accurate once a match
+> reaches a 12-12 (or equivalent) tie.
 
