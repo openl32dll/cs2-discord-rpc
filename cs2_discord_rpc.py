@@ -554,6 +554,19 @@ def connect_discord() -> Presence:
     rpc = Presence(DISCORD_CLIENT_ID)
     rpc.connect()
     log.info("Connected to Discord (client_id=%s).", DISCORD_CLIENT_ID)
+
+    # If the previous run of this script was killed abruptly (e.g. Windows
+    # shutting down without giving it time to run its own cleanup), the
+    # last status we sent can stay cached on Discord's side and keep
+    # showing - including a ticking "elapsed time" - even though nothing
+    # is actually running. Clear it proactively on every fresh connection
+    # so we never display stale leftover state before real GSI data
+    # arrives.
+    try:
+        rpc.clear()
+    except Exception:  # noqa: BLE001 - best-effort, not worth failing startup over
+        pass
+
     return rpc
 
 
